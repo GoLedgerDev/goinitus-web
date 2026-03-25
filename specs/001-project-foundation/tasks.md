@@ -15,13 +15,13 @@
 
 **Purpose**: Scaffold the Vite + React 19 + TypeScript 5 project and configure all tooling. No user-story logic yet.
 
-- [ ] T001 Initialise Vite project with `react-ts` template; install all dependencies from quickstart.md in `package.json`
-- [ ] T002 [P] Configure `tsconfig.json` with `strict: true`, `baseUrl: "."`, `paths: { "@/*": ["src/*"] }` per quickstart.md
-- [ ] T003 [P] Configure `vite.config.ts` with `@vitejs/plugin-react` and path alias `@` → `src/`
-- [ ] T004 [P] Configure Vitest in `vite.config.ts`: jsdom environment, setupFiles with @testing-library/jest-dom
-- [ ] T005 [P] Add `.env.local` and `.env.example` with `VITE_BASE_URL` variable; add `.env.local` to `.gitignore`
-- [ ] T006 [P] Set up ESLint with `@typescript-eslint` and `eslint-plugin-react-hooks` in `eslint.config.js`
-- [ ] T007 [P] Create `Dockerfile` multi-stage build: `node:22-alpine` (build) → `nginx:alpine` (serve) with `nginx.conf` SPA fallback
+- [X] T001 Initialise Vite project with `react-ts` template; install all dependencies from quickstart.md in `package.json`
+- [X] T002 [P] Configure `tsconfig.json` with `strict: true`, `baseUrl: "."`, `paths: { "@/*": ["src/*"] }` per quickstart.md
+- [X] T003 [P] Configure `vite.config.ts` with `@vitejs/plugin-react` and path alias `@` → `src/`
+- [X] T004 [P] Configure Vitest in `vite.config.ts`: jsdom environment, setupFiles with @testing-library/jest-dom
+- [X] T005 [P] Add `.env.local` and `.env.example` with `VITE_BASE_URL` variable; add `.env.local` to `.gitignore`
+- [X] T006 [P] Set up ESLint with `@typescript-eslint` and `eslint-plugin-react-hooks` in `eslint.config.js`
+- [X] T007 [P] Create `Dockerfile` multi-stage build: `node:22-alpine` (build) → `nginx:alpine` (serve) with `nginx.conf` SPA fallback
 
 **Checkpoint**: `npm run dev` starts; `npm run build` produces `dist/`; `npx tsc --noEmit` exits 0.
 
@@ -33,14 +33,14 @@
 
 **⚠️ CRITICAL**: These tasks block Phase 3, 4, and 5.
 
-- [ ] T008 [P] Create `src/api/constants.ts` with `AUTH_TOKEN_KEY`, `SERVER_URL_KEY`, and `AUTH_SENTINEL` string constants from research R-03
-- [ ] T009 [P] Create `src/api/types/schema.ts` with `Schema`, `AssetListElement`, `LabelKey`, and `InputType` interfaces from data-model.md
-- [ ] T010 [P] Create `src/api/types/transaction.ts` with `TransactionListElement` interface from data-model.md
-- [ ] T011 [P] Create `src/api/types/dataType.ts` with `DataTypeDefinition` and `DataTypeMap` types from data-model.md
-- [ ] T012 Create `src/store/configStore.ts`: Zustand store with `serverUrl`, `authToken`, reactive `client` (AxiosInstance), `setServerUrl`, `setAuthToken`, `clearAuthToken`, `isConfigured`; persist `serverUrl` + `authToken` to localStorage; error interceptor sanitises responses before logging (research R-01, R-03, contract config-store.ts)
-- [ ] T013 Create `src/api/bootstrap.ts`: typed functions `getHeader()`, `getSchema()`, `getTx()`, `getDataTypes()` reading `configStore.client`; each returns the correct typed response from `src/api/types/`
-- [ ] T014 Create `src/utils/colorUtils.ts`: `orgColor(msp: string): string` using djb2 hash + 8-colour palette from research R-02
-- [ ] T015 Create `src/store/globalStore.ts`: Zustand store matching contract `global-store.ts` — `bootstrapStatus`, `schema`, `orgColor`, `assetList` (enriched with `drawerSection`), `transactionList`, `metaTransactionList`, `dataTypeMap`, `isDrawerOpen`, `bootstrap()`, `retry()`, `setDrawerOpen()`, `checkPermission()`, `checkUnreachablePermission()`, `dataTypeBase()`, `getDropDownValues()` (research R-04, R-05, R-06)
+- [X] T008 [P] Create `src/api/constants.ts` with `AUTH_TOKEN_KEY`, `SERVER_URL_KEY`, and `AUTH_SENTINEL` string constants from research R-03
+- [X] T009 [P] Create `src/api/types/schema.ts` with `Schema`, `AssetListElement`, `LabelKey`, and `InputType` interfaces from data-model.md
+- [X] T010 [P] Create `src/api/types/transaction.ts` with `TransactionListElement` interface from data-model.md
+- [X] T011 [P] Create `src/api/types/dataType.ts` with `DataTypeDefinition` and `DataTypeMap` types from data-model.md
+- [X] T012 Create `src/store/configStore.ts`: Zustand store with `serverUrl`, `authToken`, reactive `client` (AxiosInstance), `setServerUrl`, `setAuthToken`, `clearAuthToken`, `isConfigured`; persist `serverUrl` + `authToken` to localStorage; error interceptor sanitises responses before logging (research R-01, R-03, contract config-store.ts)
+- [X] T013 Create `src/api/bootstrap.ts`: typed functions `getHeader()`, `getSchema()`, `getTx()`, `getDataTypes()` reading `configStore.client`; each returns the correct typed response from `src/api/types/`
+- [X] T014 Create `src/utils/colorUtils.ts`: `orgColor(msp: string): string` using djb2 hash + 8-colour palette from research R-02
+- [X] T015 Create `src/store/globalStore.ts`: Zustand store matching contract `global-store.ts` — `bootstrapStatus`, `schema`, `orgColor`, `assetList` (enriched with `drawerSection`), `transactionList`, `metaTransactionList`, `dataTypeMap`, `isDrawerOpen`, `bootstrap()`, `retry()`, `setDrawerOpen()`, `checkPermission()`, `checkUnreachablePermission()`, `dataTypeBase()`, `getDropDownValues()` (research R-04, R-05, R-06)
 
 **Checkpoint**: `npx tsc --noEmit` passes; `configStore` and `globalStore` can be imported and used in tests.
 
@@ -54,13 +54,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Create `src/components/ErrorBoundary/ErrorBoundary.tsx`: React class component error boundary that renders a generic "Something went wrong" recovery UI instead of a blank screen (Constitution §VI)
-- [ ] T017 [US1] Create `src/components/ConnectError/ConnectError.tsx`: MUI-styled error screen shown on bootstrap network failure; accepts `onRetry` and `onConfigure` props (FR-005, SC-005); all text in `aria-label` or visible labels
-- [ ] T018 [US1] Create `src/components/CredentialForm/CredentialForm.tsx`: MUI dialog containing a React Hook Form + Zod-validated username/password form; calls `configStore.setAuthToken` then `globalStore.retry()` on submit; Submit disabled while invalid or submitting (FR-004, Constitution §V)
-- [ ] T019 [US1] Create `src/components/BootstrapLoader/BootstrapLoader.tsx`: MUI `Skeleton` fullscreen loading state shown while `bootstrapStatus === 'loading'` (Constitution §VI)
-- [ ] T020 [US1] Create `src/layout/AppShell.tsx`: mounts `Header` + `Drawer` + React Router `<Outlet />`; contains the single `useEffect(() => { globalStore.bootstrap() }, [])` with `bootstrapStatus` guard (research R-04, FR-001); renders `BootstrapLoader`, `ConnectError`, or `CredentialForm` based on `bootstrapStatus` and 401 state; wrapped in `ErrorBoundary`
-- [ ] T021 [US1] Create `src/main.tsx`: Vite entry point; mounts `<App />` wrapped in `BrowserRouter` + `Suspense fallback={<BootstrapLoader />}` + `<ToastContainer />`
-- [ ] T022 [US1] Create `src/App.tsx`: renders `<AppShell />` inside React Router routes; applies MUI `ThemeProvider` with default theme
+- [X] T016 [US1] Create `src/components/ErrorBoundary/ErrorBoundary.tsx`: React class component error boundary that renders a generic "Something went wrong" recovery UI instead of a blank screen (Constitution §VI)
+- [X] T017 [US1] Create `src/components/ConnectError/ConnectError.tsx`: MUI-styled error screen shown on bootstrap network failure; accepts `onRetry` and `onConfigure` props (FR-005, SC-005); all text in `aria-label` or visible labels
+- [X] T018 [US1] Create `src/components/CredentialForm/CredentialForm.tsx`: MUI dialog containing a React Hook Form + Zod-validated username/password form; calls `configStore.setAuthToken` then `globalStore.retry()` on submit; Submit disabled while invalid or submitting (FR-004, Constitution §V)
+- [X] T019 [US1] Create `src/components/BootstrapLoader/BootstrapLoader.tsx`: MUI `Skeleton` fullscreen loading state shown while `bootstrapStatus === 'loading'` (Constitution §VI)
+- [X] T020 [US1] Create `src/layout/AppShell.tsx`: mounts `Header` + `Drawer` + React Router `<Outlet />`; contains the single `useEffect(() => { globalStore.bootstrap() }, [])` with `bootstrapStatus` guard (research R-04, FR-001); renders `BootstrapLoader`, `ConnectError`, or `CredentialForm` based on `bootstrapStatus` and 401 state; wrapped in `ErrorBoundary`
+- [X] T021 [US1] Create `src/main.tsx`: Vite entry point; mounts `<App />` wrapped in `BrowserRouter` + `Suspense fallback={<BootstrapLoader />}` + `<ToastContainer />`
+- [X] T022 [US1] Create `src/App.tsx`: renders `<AppShell />` inside React Router routes; applies MUI `ThemeProvider` with default theme
 
 **Checkpoint**: Open app pointed at live GoFabric server → Drawer populates. Kill server → error screen shows. Enter wrong credentials → credential form shows. No blank screen in any case.
 
@@ -74,12 +74,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Create `src/components/Drawer/AssetNavItem.tsx`: MUI `ListItemButton` for a single asset type; shows `asset.label`; `aria-label={asset.label}`; disabled styling when `drawerSection === 'unreachable'`; navigates to `/${asset.tag}/list` on click (FR-006, FR-007)
-- [ ] T024 [US2] Create `src/components/Drawer/TxNavItem.tsx`: MUI `ListItemButton` for a single transaction; shows `tx.label`; `aria-label={tx.label}`; navigates to `/${tx.tag}/transaction` on click (FR-006, FR-008)
-- [ ] T025 [US2] Create `src/components/Drawer/index.tsx`: MUI `Drawer` shell; reads `globalStore.assetList` and `globalStore.transactionList`; renders three `List` sections — **Assets (Read/Write)**, **Assets (Read Only)**, **Assets (Unreachable)** — each filtering `assetList` by `drawerSection`; renders a **Transactions** section for `transactionList` (all have `metaTx === false`); sections with no entries are not rendered (research R-06, FR-006, FR-007, FR-008)
-- [ ] T026 [US2] Create `src/components/Header/index.tsx`: MUI `AppBar` with `sx={{ bgcolor: globalStore.orgColor ?? 'primary.main' }}`; hamburger `IconButton` with `aria-label="open drawer"` toggling `globalStore.setDrawerOpen`; shows `globalStore.schema?.name` and `globalStore.schema?.version`; settings gear `IconButton` with `aria-label="open settings"` (FR-009, FR-012, Constitution §VI)
-- [ ] T027 [US2] Create `src/pages/HomePage.tsx`: lazy-loaded MUI `Typography` page showing chaincode name and version from `globalStore.schema`; wrapped in `ErrorBoundary` (FR-009, Constitution §VI)
-- [ ] T028 [US2] Update `src/App.tsx` to add React Router `<Route path="/" element={<HomePage />}>` using `React.lazy` + `Suspense` (Constitution §VI)
+- [X] T023 [US2] Create `src/components/Drawer/AssetNavItem.tsx`: MUI `ListItemButton` for a single asset type; shows `asset.label`; `aria-label={asset.label}`; disabled styling when `drawerSection === 'unreachable'`; navigates to `/${asset.tag}/list` on click (FR-006, FR-007)
+- [X] T024 [US2] Create `src/components/Drawer/TxNavItem.tsx`: MUI `ListItemButton` for a single transaction; shows `tx.label`; `aria-label={tx.label}`; navigates to `/${tx.tag}/transaction` on click (FR-006, FR-008)
+- [X] T025 [US2] Create `src/components/Drawer/index.tsx`: MUI `Drawer` shell; reads `globalStore.assetList` and `globalStore.transactionList`; renders three `List` sections — **Assets (Read/Write)**, **Assets (Read Only)**, **Assets (Unreachable)** — each filtering `assetList` by `drawerSection`; renders a **Transactions** section for `transactionList` (all have `metaTx === false`); sections with no entries are not rendered (research R-06, FR-006, FR-007, FR-008)
+- [X] T026 [US2] Create `src/components/Header/index.tsx`: MUI `AppBar` with `sx={{ bgcolor: globalStore.orgColor ?? 'primary.main' }}`; hamburger `IconButton` with `aria-label="open drawer"` toggling `globalStore.setDrawerOpen`; shows `globalStore.schema?.name` and `globalStore.schema?.version`; settings gear `IconButton` with `aria-label="open settings"` (FR-009, FR-012, Constitution §VI)
+- [X] T027 [US2] Create `src/pages/HomePage.tsx`: lazy-loaded MUI `Typography` page showing chaincode name and version from `globalStore.schema`; wrapped in `ErrorBoundary` (FR-009, Constitution §VI)
+- [X] T028 [US2] Update `src/App.tsx` to add React Router `<Route path="/" element={<HomePage />}>` using `React.lazy` + `Suspense` (Constitution §VI)
 
 **Checkpoint**: Drawer renders asset and transaction sections from live schema. Switching to a different GoFabric backend (via settings) updates the Drawer contents with no code change.
 
@@ -93,9 +93,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Create `src/components/ServerConfigPanel/ServerConfigPanel.tsx`: MUI `Drawer` (right-anchored) or `Dialog` containing a React Hook Form + Zod-validated form with fields for `serverUrl` (required, must start with `http://` or `https://`) and `username` + `password`; on submit calls `configStore.setServerUrl()`, `configStore.setAuthToken()`, then `globalStore.retry()`; opens when Header settings gear is clicked; closes on success or cancel (FR-010, FR-003, US3 AC1, AC2)
-- [ ] T030 [US3] Wire `ServerConfigPanel` open state to Header settings gear `IconButton` in `src/components/Header/index.tsx`: add `isSettingsOpen` local state; pass `onClose` prop to `ServerConfigPanel`; panel submission triggers `globalStore.retry()` which replays bootstrap with new client — no page reload (US3 AC1, AC4, FR-010)
-- [ ] T031 [US3] Update `src/store/configStore.ts` to read `VITE_BASE_URL` from `import.meta.env` as the initial `serverUrl` default when localStorage has no persisted value (US3 AC2 — persisted address used on reload; falls back to build-time default when none stored)
+- [X] T029 [US3] Create `src/components/ServerConfigPanel/ServerConfigPanel.tsx`: MUI `Drawer` (right-anchored) or `Dialog` containing a React Hook Form + Zod-validated form with fields for `serverUrl` (required, must start with `http://` or `https://`) and `username` + `password`; on submit calls `configStore.setServerUrl()`, `configStore.setAuthToken()`, then `globalStore.retry()`; opens when Header settings gear is clicked; closes on success or cancel (FR-010, FR-003, US3 AC1, AC2)
+- [X] T030 [US3] Wire `ServerConfigPanel` open state to Header settings gear `IconButton` in `src/components/Header/index.tsx`: add `isSettingsOpen` local state; pass `onClose` prop to `ServerConfigPanel`; panel submission triggers `globalStore.retry()` which replays bootstrap with new client — no page reload (US3 AC1, AC4, FR-010)
+- [X] T031 [US3] Update `src/store/configStore.ts` to read `VITE_BASE_URL` from `import.meta.env` as the initial `serverUrl` default when localStorage has no persisted value (US3 AC2 — persisted address used on reload; falls back to build-time default when none stored)
 
 **Checkpoint**: Settings panel opens via gear icon. Submit new server address → Drawer repopulates. Reload → new address still active. Entering unreachable address → shows ConnectError, previous config preserved.
 
@@ -105,12 +105,12 @@
 
 **Purpose**: End-to-end wiring, edge cases, and constitution compliance verification.
 
-- [ ] T032 [P] Add `react-toastify` `<ToastContainer />` to `src/main.tsx` and implement non-blocking toast in `globalStore.bootstrap()` when `getDataTypes()` fails (FR-011)
-- [ ] T033 [P] Generate React Router routes dynamically from `globalStore.assetList` and `globalStore.transactionList` in `src/App.tsx`; replace any static route placeholders (Constitution §II — no hardcoded route paths)
-- [ ] T034 [P] Ensure all `IconButton` components in `Header` and `Drawer` have `aria-label` attributes; all interactive elements are keyboard-navigable (Constitution §VI accessibility spot-check)
-- [ ] T035 Run `npx tsc --noEmit` and fix all type errors; verify no `any` is used without explicit eslint-disable annotation (Constitution §III type gate)
-- [ ] T036 Verify no banned packages in `node_modules` — run `npm ls moment @material-ui/core mobx react-scripts` and confirm all return "not found" (Constitution §I)
-- [ ] T037 [P] Verify `quickstart.md` steps work end-to-end: scaffold → install → dev server → backend connect → Drawer populates
+- [X] T032 [P] Add `react-toastify` `<ToastContainer />` to `src/main.tsx` and implement non-blocking toast in `globalStore.bootstrap()` when `getDataTypes()` fails (FR-011)
+- [X] T033 [P] Generate React Router routes dynamically from `globalStore.assetList` and `globalStore.transactionList` in `src/App.tsx`; replace any static route placeholders (Constitution §II — no hardcoded route paths)
+- [X] T034 [P] Ensure all `IconButton` components in `Header` and `Drawer` have `aria-label` attributes; all interactive elements are keyboard-navigable (Constitution §VI accessibility spot-check)
+- [X] T035 Run `npx tsc --noEmit` and fix all type errors; verify no `any` is used without explicit eslint-disable annotation (Constitution §III type gate)
+- [X] T036 Verify no banned packages in `node_modules` — run `npm ls moment @material-ui/core mobx react-scripts` and confirm all return "not found" (Constitution §I)
+- [X] T037 [P] Verify `quickstart.md` steps work end-to-end: scaffold → install → dev server → backend connect → Drawer populates
 
 ---
 
