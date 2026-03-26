@@ -1,17 +1,19 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { AppShell } from '@/layout/AppShell';
 import { BootstrapLoader } from '@/components/BootstrapLoader/BootstrapLoader';
+import { buildTheme } from '@/theme';
+import { useGlobalStore } from '@/store/globalStore';
 
 const HomePage = lazy(() => import('@/pages/HomePage').then((m) => ({ default: m.HomePage })));
 const AssetListPage = lazy(() => import('@/pages/AssetListPage').then((m) => ({ default: m.AssetListPage })));
 const AssetItemPage = lazy(() => import('@/pages/AssetItemPage').then((m) => ({ default: m.AssetItemPage })));
 
-const theme = createTheme();
-
 export default function App() {
+  const orgColor = useGlobalStore((s) => s.orgColor);
+  const theme = useMemo(() => buildTheme(orgColor), [orgColor]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

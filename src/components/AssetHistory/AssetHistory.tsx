@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { readAssetHistory } from '@/api/assets';
@@ -29,7 +28,7 @@ export function AssetHistory({ assetTag, assetKey, schema, dataTypeMap }: AssetH
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleExpand = async (_: React.SyntheticEvent, expanded: boolean) => {
+  const handleExpand = async (_: SyntheticEvent, expanded: boolean) => {
     if (!expanded || loaded) return;
     setLoading(true);
     setError(null);
@@ -51,7 +50,7 @@ export function AssetHistory({ assetTag, assetKey, schema, dataTypeMap }: AssetH
   return (
     <Accordion onChange={handleExpand}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="history-content" id="history-header">
-        <Typography variant="subtitle1">Ledger History</Typography>
+        <Typography variant="subtitle2">Ledger History</Typography>
       </AccordionSummary>
       <AccordionDetails>
         {loading && (
@@ -66,8 +65,8 @@ export function AssetHistory({ assetTag, assetKey, schema, dataTypeMap }: AssetH
           </Typography>
         )}
         {entries.map((entry, i) => (
-          <Card key={i} variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
+          <Paper key={i} variant="outlined" sx={{ mb: 2 }}>
+            <Box sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                 <Chip label={entry._timestamp} size="small" variant="outlined" />
                 <Chip label={entry['@lastTouchBy'] as string} size="small" />
@@ -78,8 +77,8 @@ export function AssetHistory({ assetTag, assetKey, schema, dataTypeMap }: AssetH
                 asset={entry as AssetRecord}
                 dataTypeMap={dataTypeMap}
               />
-            </CardContent>
-          </Card>
+            </Box>
+          </Paper>
         ))}
       </AccordionDetails>
     </Accordion>

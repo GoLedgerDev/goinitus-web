@@ -110,20 +110,26 @@ export function AssetItemPage() {
 
   return (
     <Box sx={{ p: 3, maxWidth: 900 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5" component="h1">
-          {schema.label} — Detail
-        </Typography>
+      {/* Header card */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="h5" component="h1">
+            {schema.label}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontFamily: 'monospace', mt: 0.5 }}
+          >
+            {assetKey}
+          </Typography>
+        </Box>
         <Tooltip title="Show QR code">
           <IconButton aria-label="Show QR code" onClick={() => setQrOpen(true)}>
             <QrCode2Icon />
           </IconButton>
         </Tooltip>
-      </Stack>
-
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-        Key: {assetKey}
-      </Typography>
+      </Paper>
 
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
         <AssetDetail schema={schema} asset={asset} dataTypeMap={dataTypeMap} />

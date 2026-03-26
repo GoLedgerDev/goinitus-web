@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Outlet } from 'react-router-dom';
 import { useGlobalStore } from '@/store/globalStore';
 import { Header } from '@/components/Header/index';
@@ -10,15 +11,19 @@ import { ConnectError } from '@/components/ConnectError/ConnectError';
 import { CredentialForm } from '@/components/CredentialForm/CredentialForm';
 import { ErrorBoundary } from '@/components/ErrorBoundary/ErrorBoundary';
 import { ServerConfigPanel } from '@/components/ServerConfigPanel/ServerConfigPanel';
-import { useState } from 'react';
 
 export function AppShell() {
   const bootstrapStatus = useGlobalStore((s) => s.bootstrapStatus);
   const needs401Form = useGlobalStore((s) => s.needs401Form);
   const bootstrap = useGlobalStore((s) => s.bootstrap);
   const retry = useGlobalStore((s) => s.retry);
+  const isDrawerOpen = useGlobalStore((s) => s.isDrawerOpen);
+  const setDrawerOpen = useGlobalStore((s) => s.setDrawerOpen);
 
   const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
+
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   // Exactly-once bootstrap guard — globalStore itself checks bootstrapStatus before proceeding
   useEffect(() => {
@@ -41,15 +46,21 @@ export function AppShell() {
   // bootstrapStatus === 'success' — render full shell
   return (
     <ErrorBoundary>
-      <Box sx={{ display: 'flex' }}>
-        <Header />
-        <AppDrawer />
-
-        {/* Main content area */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          {/* Spacer that matches AppBar height */}
-          <Toolbar />
-          <Outlet />
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Header
+          showMenuButton={!isDesktop}
+          onMenuClick={() => setDrawerOpen(true)}
+        />
+        <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+          <AppDrawer
+            variant={isDesktop ? 'permanent' : 'temporary'}
+            open={isDrawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            onSettingsClick={() => setConfigPanelOpen(true)}
+          />
+          <Box component="main" sx={{ flexGrow: 1, p: 3, overflowY: 'auto' }}>
+            <Outlet />
+          </Box>
         </Box>
       </Box>
 
@@ -59,7 +70,7 @@ export function AppShell() {
         onClose={() => useGlobalStore.getState().dismissCredentialForm()}
       />
 
-      {/* Settings panel reachable from ConnectError "Configure Server" action */}
+      {/* Settings panel — reachable from Drawer bottom settings item and ConnectError */}
       <ServerConfigPanel
         open={isConfigPanelOpen}
         onClose={() => setConfigPanelOpen(false)}
@@ -67,3 +78,4 @@ export function AppShell() {
     </ErrorBoundary>
   );
 }
+

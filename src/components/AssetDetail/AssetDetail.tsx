@@ -1,6 +1,6 @@
-import Divider from '@mui/material/Divider';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import { Fragment } from 'react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { formatFieldValue } from '@/utils/fieldFormatters';
 import type { AssetSchema, AssetRecord } from '@/api/types/asset';
@@ -13,34 +13,65 @@ interface AssetDetailProps {
 }
 
 export function AssetDetail({ schema, asset, dataTypeMap }: AssetDetailProps) {
+  if (schema.props.length === 0) {
+    return (
+      <Box sx={{ py: 1.5, px: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          No properties defined for this asset type.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <List disablePadding>
-      {schema.props.map((prop, index) => (
-        <div key={prop.tag}>
-          <ListItem
-            sx={{ py: 1, px: 0, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'baseline' }, gap: 1 }}
-          >
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              sx={{ minWidth: 180, flexShrink: 0 }}
+    <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr' }}>
+      {schema.props.map((prop, index) => {
+        const rowBg = index % 2 === 0 ? '#f8f9fb' : '#ffffff';
+        return (
+          <Fragment key={prop.tag}>
+            {/* Label cell */}
+            <Box
+              sx={{
+                py: 1.5,
+                px: 2,
+                textAlign: 'right',
+                bgcolor: rowBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: 1,
+              }}
             >
-              {prop.label}
-            </Typography>
-            <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-              {formatFieldValue(asset[prop.tag], prop.dataType, dataTypeMap)}
-            </Typography>
-          </ListItem>
-          {index < schema.props.length - 1 && <Divider />}
-        </div>
-      ))}
-      {schema.props.length === 0 && (
-        <ListItem sx={{ px: 0 }}>
-          <Typography variant="body2" color="text.secondary">
-            No properties defined for this asset type.
-          </Typography>
-        </ListItem>
-      )}
-    </List>
+              <Typography variant="body2" color="text.secondary">
+                {prop.label}
+              </Typography>
+              {prop.isKey && (
+                <Chip
+                  label="KEY"
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  sx={{ height: 18, fontSize: '0.65rem' }}
+                />
+              )}
+            </Box>
+            {/* Value cell */}
+            <Box
+              sx={{
+                py: 1.5,
+                px: 2,
+                bgcolor: rowBg,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                {formatFieldValue(asset[prop.tag], prop.dataType, dataTypeMap)}
+              </Typography>
+            </Box>
+          </Fragment>
+        );
+      })}
+    </Box>
   );
 }

@@ -4,8 +4,8 @@ import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
 import { searchAssets, deleteAsset } from '@/api/assets';
@@ -26,7 +26,8 @@ export function AssetListPage() {
   const [schema, setSchema] = useState<AssetSchema | null>(null);
   const [rows, setRows] = useState<AssetRecord[]>([]);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [bookmark, setBookmark] = useState('');
+  const [nextBookmark, setNextBookmark] = useState('');
+  const [pageStack, setPageStack] = useState<string[]>(['']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export function AssetListPage() {
 
         setRows(displayRows);
         setHasNextPage(next);
-        setBookmark(result.metadata.bookmark);
+        setNextBookmark(result.metadata.bookmark);
       } catch (err: unknown) {
         setError((err as Error)?.message ?? 'Failed to load data');
       } finally {
@@ -97,15 +98,30 @@ export function AssetListPage() {
     [tag],
   );
 
-  // Trigger data fetch once schema is ready
+  // Trigger data fetch once schema is ready; reset pagination when schema changes (new assetTag)
   useEffect(() => {
     if (schema) {
+      setPageStack(['']);
+      setNextBookmark('');
       fetchData('', schema);
     }
   }, [schema, fetchData]);
 
   const handleNextPage = () => {
-    if (schema) fetchData(bookmark, schema);
+    if (schema) {
+      const newStack = [...pageStack, nextBookmark];
+      setPageStack(newStack);
+      fetchData(nextBookmark, schema);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (schema && pageStack.length > 1) {
+      const newStack = pageStack.slice(0, -1);
+      const prevBookmark = newStack[newStack.length - 1];
+      setPageStack(newStack);
+      fetchData(prevBookmark, schema);
+    }
   };
 
   const canWrite = schema ? checkPermission(schema.writers ?? []) : false;
@@ -118,7 +134,10 @@ export function AssetListPage() {
     try {
       await deleteAsset({ key: { '@assetType': tag, '@key': keyToDelete } });
       toast.success('Asset deleted');
-      if (schema) fetchData('', schema);
+      if (schema) {
+        setPageStack(['']);
+        fetchData('', schema);
+      }
     } catch (err: unknown) {
       toast.error((err as Error)?.message ?? 'Delete failed');
     }
@@ -159,9 +178,12 @@ export function AssetListPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5" component="h1">
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
           {schema.label}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {rows.length} records
         </Typography>
         {canWrite && (
           <Button
@@ -172,7 +194,7 @@ export function AssetListPage() {
             Create
           </Button>
         )}
-      </Stack>
+      </Paper>
 
       {error && (
         <Alert
@@ -198,12 +220,14 @@ export function AssetListPage() {
           rows={rows}
           loading={isLoading}
           hasNextPage={hasNextPage}
+          hasPrevPage={pageStack.length > 1}
           dataTypeMap={dataTypeMap}
           canWrite={canWrite}
           onView={(key) => navigate(`/${tag}/item/${encodeURIComponent(key)}`)}
           onEdit={(key) => navigate(`/${tag}/item/${encodeURIComponent(key)}/edit`)}
           onDelete={(key) => setConfirmKey(key)}
           onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
         />
       )}
 
