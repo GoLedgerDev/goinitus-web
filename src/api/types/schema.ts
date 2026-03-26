@@ -18,10 +18,10 @@ export interface AssetListElement {
   label: string;
   /** Snake-case identifier used in API paths and @assetType field */
   tag: string;
-  /** MSP regex patterns with write permission */
-  writers: string[];
-  /** MSP regex patterns with read permission; non-empty ⟹ private data collection */
-  readers: string[];
+  /** MSP regex patterns with write permission; null means no restriction (open to all) */
+  writers: string[] | null;
+  /** MSP regex patterns with read permission; non-empty ⟹ private data collection; absent or null means public */
+  readers?: string[] | null;
   /** True if type was created at runtime via createAssetType */
   dynamic: boolean;
   /** Private data collection name, if applicable */
