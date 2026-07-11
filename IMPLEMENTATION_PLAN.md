@@ -23,16 +23,21 @@ never confused with a parity requirement.
 
 ## Target stack
 
-**These are recommendations only — Samuel Venzi must confirm or veto each choice before Phase 0
-starts.** They largely reuse `ARCHITECTURE.md` §9's modernization table, which held up under
-cross-checking; call-outs below note where this plan diverges from that table.
+**Confirmed** (per Samuel Venzi's feedback on this PR): the rewrite modernizes the frontend
+tooling/libraries below without regard for compatibility with the legacy stack. This is a
+frontend-only decision — it has no bearing on the `ccapi-go` REST contract, which per the Scope
+section above stays unchanged (`/api/query/*` / `/api/invoke/*`, same endpoints, same
+request/response shapes). "Modernize the stack" means the client-side framework/build/state/form
+libraries, not the API surface the client talks to. They largely reuse `ARCHITECTURE.md` §9's
+modernization table, which held up under cross-checking; call-outs below note where this plan
+diverges from that table.
 
 | Concern | Recommendation | Why |
 |---|---|---|
 | Framework | React 19 + TypeScript 5 | Direct continuation of the existing React codebase; avoids a framework migration on top of a stack migration. |
 | Build tool | Vite | CRA (`react-scripts`) is deprecated; Vite is the de facto CRA replacement with minimal config. |
 | UI kit | MUI v6 (`@mui/material`) + `@mui/x-data-grid` + `@mui/x-date-pickers` | Same design language as today's MUI v4 app, so the visual/UX delta for users is minimal; MUI v6 is actively maintained and the v4→v6 migration path is well documented. |
-| State management | Zustand | Legacy MobX 5 uses the old decorator API; Zustand gives a comparably small, hooks-first store without MobX's decorator/build-config baggage. (MUI v6 + MobX 6 is a viable fallback if Samuel prefers staying on MobX — flagged as an open question below.) |
+| State management | Zustand | Legacy MobX 5 uses the old decorator API; Zustand gives a comparably small, hooks-first store without MobX's decorator/build-config baggage. Confirmed — no need to preserve MobX for compatibility with the legacy codebase. |
 | Forms & validation | React Hook Form + Zod | Legacy hand-rolled MobX `Input` classes have no validation at all (TD-07); RHF+Zod lets validation be derived mechanically from the schema's `required`/`dataType` fields with far less boilerplate than the current per-type class hierarchy. |
 | HTTP client | Axios 1.x | Same library as today (minimizes behavioral surprises in error handling/interceptors), just on a non-CVE'd major version. |
 | Routing | React Router 6 | Direct successor to the router already in use (v5); routes are still generated dynamically from schema data at runtime, same pattern as `Routes.tsx` today. |
@@ -106,14 +111,13 @@ is explicitly *not* addressed in this rewrite (tracked for a future pass).
 
 Needs a decision from Samuel Venzi before or during implementation:
 
-1. **State management**: Zustand (this plan's default) vs. staying on MobX 6. Zustand is simpler but is a bigger conceptual jump for whoever maintains this next; MobX 6 preserves the mental model at the cost of still carrying MobX's overhead.
-2. **Dashboard ambition**: legacy dashboard is hardcoded and widely regarded (per `ARCHITECTURE.md` and confirmed in source) as barely implemented. Does the rewrite target byte-for-byte parity with the current hardcoded panels (cheapest, matches "no more than legacy"), or is this the moment to make it schema/config-driven (a real feature addition, out of this plan's default scope unless explicitly greenlit)?
-3. **OAuthCredentialInput**: `react-google-login` depends on a Google API that was shut down in March 2023 (TD-01), so this input type is currently non-functional in production. Do we (a) reimplement against `@react-oauth/google` to restore actual working OAuth parity, or (b) keep the input type and its wire format for schema compatibility but accept it may need further backend-side coordination? Either way this is more than a drop-in library swap and needs sign-off.
-4. **XYTCredentialInput**: depends on an external "fingerprint server" (`fingerprintServer.url`/`port` in `Globals`) that, per source inspection, is stored but apparently never wired into an actual request path beyond the credential dialog itself. Confirm this integration is still needed/used by any real deployment before committing effort to it.
-5. **Auth model**: `ccapi-go`'s Basic Auth is a single shared `AUTH_USER`/`AUTH_PASS` pair gated by `ENABLE_AUTH`, not per-user accounts. Any "auth hardening" in Phase 5 is necessarily cosmetic (how the token is stored/transmitted client-side) unless `ccapi-go` itself changes — confirm whether backend auth changes are on the table or if the frontend must work within this constraint permanently.
-6. **Deployment target**: legacy ships as a Docker image (Node build stage → Nginx serve, base-URL injected via cookie). Confirm this deployment shape is unchanged for the rewrite, or whether a different hosting target (e.g., static CDN + runtime config endpoint) is preferred now that the app is being rebuilt anyway.
-7. **Private-collection query param asymmetry**: `readAsset` takes `?collections=<plain collection name>` while `createAsset`/`updateAsset` take `?@collections=<base64-encoded JSON array of names>` (see Appendix A). This is a `ccapi-go` contract quirk, not something the frontend can unilaterally fix. Flagging so it isn't mistaken for a frontend bug during implementation — no action needed unless Samuel wants to raise it with the `ccapi-go` team separately (would be a backend-repo change, out of scope here).
-8. **`getDataTypes` failure handling**: legacy silently toasts and continues booting if this call fails. Confirm that degraded-but-usable behavior (custom dropdown/enum types just won't resolve) is still acceptable, or whether it should block boot instead.
+1. **Dashboard ambition**: legacy dashboard is hardcoded and widely regarded (per `ARCHITECTURE.md` and confirmed in source) as barely implemented. Does the rewrite target byte-for-byte parity with the current hardcoded panels (cheapest, matches "no more than legacy"), or is this the moment to make it schema/config-driven (a real feature addition, out of this plan's default scope unless explicitly greenlit)?
+2. **OAuthCredentialInput**: `react-google-login` depends on a Google API that was shut down in March 2023 (TD-01), so this input type is currently non-functional in production. Do we (a) reimplement against `@react-oauth/google` to restore actual working OAuth parity, or (b) keep the input type and its wire format for schema compatibility but accept it may need further backend-side coordination? Either way this is more than a drop-in library swap and needs sign-off.
+3. **XYTCredentialInput**: depends on an external "fingerprint server" (`fingerprintServer.url`/`port` in `Globals`) that, per source inspection, is stored but apparently never wired into an actual request path beyond the credential dialog itself. Confirm this integration is still needed/used by any real deployment before committing effort to it.
+4. **Auth model**: `ccapi-go`'s Basic Auth is a single shared `AUTH_USER`/`AUTH_PASS` pair gated by `ENABLE_AUTH`, not per-user accounts. Any "auth hardening" in Phase 5 is necessarily cosmetic (how the token is stored/transmitted client-side) unless `ccapi-go` itself changes — confirm whether backend auth changes are on the table or if the frontend must work within this constraint permanently.
+5. **Deployment target**: legacy ships as a Docker image (Node build stage → Nginx serve, base-URL injected via cookie). Confirm this deployment shape is unchanged for the rewrite, or whether a different hosting target (e.g., static CDN + runtime config endpoint) is preferred now that the app is being rebuilt anyway.
+6. **Private-collection query param asymmetry**: `readAsset` takes `?collections=<plain collection name>` while `createAsset`/`updateAsset` take `?@collections=<base64-encoded JSON array of names>` (see Appendix A). This is a `ccapi-go` contract quirk, not something the frontend can unilaterally fix. Flagging so it isn't mistaken for a frontend bug during implementation — no action needed unless Samuel wants to raise it with the `ccapi-go` team separately (would be a backend-repo change, out of scope here).
+7. **`getDataTypes` failure handling**: legacy silently toasts and continues booting if this call fails. Confirm that degraded-but-usable behavior (custom dropdown/enum types just won't resolve) is still acceptable, or whether it should block boot instead.
 
 ---
 
@@ -140,7 +144,7 @@ live branch — `ARCHITECTURE.md` states it was generated 2026-03-24 and its cod
    `?@collections=<base64(JSON array of collection names)>` query parameter — note this is a
    *different* encoding from `readAsset`'s `?collections=<plain collection name>` (confirmed in
    `generators/FormGenerator/index.tsx`). The rewrite's API client must replicate this exactly,
-   including the query-param asymmetry between read and write (flagged as open question 7 above).
+   including the query-param asymmetry between read and write (flagged as open question 6 above).
 3. **Confirmed accurate**: `Routes.tsx`'s dynamic route generation (and its duplicate-`key` bug,
    TD-10), `Globals.tsx`'s bootstrap sequence and permission-check logic, `DashboardStore.tsx`'s
    hardcoded panel list pointing at `http://localhost/length?asset=productOrder` (TD-09/TD-18),
